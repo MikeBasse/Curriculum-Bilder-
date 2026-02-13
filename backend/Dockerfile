@@ -7,14 +7,18 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Install dependencies
-RUN npm ci
+# Install dependencies with reduced memory usage
+RUN npm ci --maxsockets 1
+
+# Generate Prisma client first
+RUN npx prisma generate
 
 # Copy source files
-COPY . .
+COPY tsconfig.json ./
+COPY src ./src/
 
-# Generate Prisma client and build
-RUN npm run build
+# Build TypeScript
+RUN npx tsc
 
 # Production stage
 FROM node:20-alpine AS production
