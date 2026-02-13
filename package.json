@@ -1,0 +1,20 @@
+{
+  "name": "curriculum-builder",
+  "version": "1.0.0",
+  "description": "Teacher Curriculum Builder - Full Stack Application",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "build:backend": "npm run build --workspace=backend",
+    "build:frontend": "npm run build --workspace=frontend",
+    "start:backend": "npm run start --workspace=backend"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
