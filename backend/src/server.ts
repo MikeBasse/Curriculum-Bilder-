@@ -103,33 +103,43 @@ app.use('/api/documents', documentRoutes);
 app.use('/api/generations', generationRoutes);
 app.use('/api/exports', exportRoutes);
 
-// Serve static frontend in production
-if (isProduction) {
-  const frontendPath = path.join(__dirname, '../../frontend/dist');
-  app.use(express.static(frontendPath));
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(frontendPath, 'index.html'));
-  });
-}
+// 404 handler for API routes
+app.use('/api/*', (req, res) => {
+  res.status(404).json({ success: false, message: 'API endpoint not found' });
+});
 
 // Error handler
 app.use(errorHandler);
 
 // Start server
-const server = app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
-});
+let server: ReturnType<typeof app.listen>;
+
+const startServer = async () => {
+  try {
+    await prisma.$connect();
+    console.log('Connected to database');
+  } catch (error) {
+    console.error('Failed to connect to database:', error);
+  }
+
+  server = app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+  });
+};
+
+startServer();
 
 // Graceful shutdown
 const gracefulShutdown = async () => {
   console.log('Received shutdown signal, closing connections...');
-  server.close(async () => {
-    await prisma.$disconnect();
-    console.log('Server closed');
-    process.exit(0);
-  });
+  if (server) {
+    server.close(async () => {
+      await prisma.$disconnect();
+      console.log('Server closed');
+      process.exit(0);
+    });
+  }
 
-  // Force close after 30s
   setTimeout(() => {
     console.error('Could not close connections in time, forcefully shutting down');
     process.exit(1);
