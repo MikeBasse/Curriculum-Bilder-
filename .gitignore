@@ -1,9 +1,10 @@
 # Dependencies
 node_modules/
 
-# Build outputs
-dist/
+# Build outputs (keep backend/dist for deployment)
+# dist/
 build/
+frontend/dist/
 
 # Environment files
 .env
